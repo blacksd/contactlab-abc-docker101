@@ -13,9 +13,11 @@ Creiamo un volume che ospiterà i dati persistenti del database:
 docker volume create wordpressdb-persistence
 ```
 
-E lanciamo un container che creerà un db con un utente associato
+E, dopo aver prelevato l'immagine associata, lanciamo un container che creerà un db con un utente associato
 
 ```sh
+docker pull mysql
+
 docker run \
 --name wordpressdb \
 -e MYSQL_ROOT_PASSWORD="c4n3root" \
@@ -55,9 +57,11 @@ Anche qui, creiamo un volume che ospita i file del sito:
 docker volume create wordpresswebsite-persistence
 ```
 
-Lanciamo il container
+Lanciamo il container, anche qui dopo aver preso l'immagine
 
 ```sh
+docker pull wordpress
+
 docker run \
 --name wordpresswebsite \
 --link wordpressdb:mysql \

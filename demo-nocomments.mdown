@@ -1,0 +1,55 @@
+```sh
+https://hub.docker.com/_/mysql/
+
+docker volume create wordpressdb-persistence
+
+docker pull mysql
+
+docker run \
+--name wordpressdb \
+-e MYSQL_ROOT_PASSWORD="c4n3root" \
+-e MYSQL_DATABASE="c4n3press" -e MYSQL_USER="c4n3user" -e MYSQL_PASSWORD="c4n3pass" \
+-v wordpressdb-persistence:/var/lib/mysql \
+-d mysql
+
+docker ps -a 
+
+docker logs wordpressdb --follow
+
+docker exec -ti wordpressdb /bin/bash 
+    /usr/bin/mysql -u root -pc4n3root -e "show databases;"
+    /usr/bin/mysql -u root -pc4n3root -e "use c4n3press; show tables;"
+
+https://hub.docker.com/_/wordpress/
+
+docker volume create wordpresswebsite-persistence
+
+docker pull wordpress
+
+docker run \
+--name wordpresswebsite \
+--link wordpressdb:mysql \
+-e WORDPRESS_DB_USER="c4n3user" \
+-e WORDPRESS_DB_PASSWORD="c4n3pass" \
+-e WORDPRESS_DB_NAME="c4n3press" \
+-p 80:80 \
+-v wordpresswebsite-persistence:/var/www/html \
+-d wordpress
+
+docker exec -ti wordpressdb /bin/bash 
+    /usr/bin/mysql -u root -pc4n3root -e "use c4n3press; show tables;"
+
+docker rm -f wordpressdb
+docker ps -a
+
+docker volume ls 
+
+docker inspect wordpressdb-persistence
+
+ls /var/lib/docker/volumes/wordpressdb-persistence/_data
+
+docker run \
+--name wordpressdb \
+-v wordpressdb-persistence:/var/lib/mysql \
+-d mysql
+```
