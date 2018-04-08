@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>Docker 101</title>
+
+	<link rel="stylesheet" href="css/reveal.css">
+	<link rel="stylesheet" href="css/theme/black.css">
+
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="lib/css/zenburn.css">
+
+	<!-- Printing and PDF exports -->
+	<script>
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+		document.getElementsByTagName('head')[0].appendChild(link);
+	</script>
+	<style type="text/css">
+		.reveal p, .reveal li {
+			text-align: left;
+			margin: 20px 10%;
+		}
+		
+		.reveal ul {
+			width: 100%;
+		}
+
+		.reveal img,.reveal section img {
+			border: 0px; 
+			background: 0%; 
+			box-shadow: 0 0 0 transparent;
+		}
+
+		.reveal pre {
+			width: 100%;
+			box-shadow: 0 0 0 transparent;
+			margin: 0px;
+		}
+		.reveal pre code {
+			padding: 10px;
+		}
+		html.dimbg .slide-background.present {
+			opacity: 0.70;
+		}
+
+
+
+	</style>
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section data-background="images/shipyard.jpeg" data-state="dimbg">
+				<img data-src="images/docker-logo.png" alt="Down arrow">
+				<h1>Docker 101</h1>
+				<h4>A brief introduction</h4>
+				<!-- <p>
+						<small>
+							<a href="http://blacksd.tech">Marco Bulgarini</a>, Platform Operations
+						</small>
+					</p> -->
+			</section>
+			<section id="opening">
+				<section >
+					<h2>#whoami</h2>
+					<p>
+						Marco, DevOps Tech Lead, Platform Operations 
+					</p>
+					<p>
+						Push buttons, talk to people 
+					</p>
+					<p class="fragment"> ...even at the same time! </p>
+				</section>
+				<section data-background="images/dockerconeu2017.jpg" data-state="dimbg">
+					<h2>Why this ABC?</h2>
+					<p>I think this technology is going to change the game</p>
+					<p class="fragment">I feel like I owed something to ContactLab</p>
+					<p class="fragment">Aaand... it's a challenge :)</p>
+				</section>
+				<section data-background="images/nerd.jpg" data-state="dimbg">
+					<h2>Nerd Alert!</h2>
+					<p>I'll make extensive use of:</p>
+					<ul>
+						<li>techy terms</li>
+						<li>obscure memes</li>
+						<li>console commands</li>
+						<li>whales</li>
+					</ul>
+				</section>
+			</section>
+			<section id="introduction">
+				<section>
+					<h2>So...</h2>
+					<p>Docker is all about <em>running applications</em>.</p>
+					<!-- TODO: bridge to install -->
+				</section>
+				<section>
+					<h2>"traditional" installation</h2>
+					<img src="images/install-windows.png" width="385px"/> 
+					<img src="images/install-linux.png" width="500px"/>
+				</section>
+				<section>
+					<h2>a "modern" way</h2>
+					<img src="images/install-macos.gif" width="350px" />
+					<img src="images/install-mobile.png" height="380px" />
+				</section>
+				<section>
+					<h2>What about us?</h2>
+					<p>A server app is close to a "traditional" one.<br />
+					Before we roll out a new app, our team:</p> 
+					<ul>
+						<li>deploy a server OS (typically in a VM)</li>
+						<li>install packages - java, mysql, apache, etc.</li>
+						<li>bring in the app</li>
+						<li>(a few other dozen steps)</li>
+						<li>connect it to the outside world</li>
+					</ul>
+					<p>Does it look reasonable?</p>
+				</section>
+				<section data-background="images/burning-hell.gif">
+					<h1>It is not</h1>	
+				</section>
+				<section>
+					<h3>It's so wrong I don't even know where to start</h3>
+					<p>The app is <em>forever bound</em> to its server</p>
+					<p>It's a long, error-prone process</p>
+					<p>2-6 hours per server <em>thrown away</em> if you thrash the server</p>
+					<p>little room for automation</p>
+				</section>
+			</section>
+
+			<section>
+				<section data-background="images/docker-wallpaper-black.jpg">
+					<h2>Enter Docker!</h2>
+				</section>
+				<section>
+					<h3>Serving apps, the "modern" way</h3>
+					<p><em>Containers</em> are self-contained applications environments</p>
+					<p><em>Images</em> are generalized container "templates"</p>
+					<p><em>Registries</em> is where images are organized in</p>
+				</section>
+				<section>
+					<img src="images/registries-docker.PNG"/>
+				</section>
+				<section>
+					<h3>Solving the issue in two steps</h3>
+					
+					<ol>
+						<li>We build an image with our complete application: 
+							<pre>
+								<code class="docker" data-trim contenteditable>
+FROM nginx 
+COPY hello_world.html /usr/share/nginx/html 
+WORKDIR /usr/share/nginx/html 
+CMD nginx -g 'daemon off;'
+								</code>
+							</pre>
+						</li>
+						<li>We run a container based on that image
+							<pre>
+								<code class="bash" data-trim contenteditable>
+docker run --name myappcontainer -p 80:80 myappimage
+								</code>
+							</pre>
+						</li>
+					</ol>
+				</section>
+				
+			</section>
+			<section>
+				<section>
+					<h3>That's nice and all, but... why the hype?</h3>
+					<blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
+						&ldquo;Great sales pitch, dude.&rdquo;<br />
+						<div style="text-align: right; margin-right: 20px;"><small>- The Audience</small></div>
+					</blockquote>
+					<p class="fragment">Stay with me - the fun starts here!<br />
+					Containerized applications have a TON of benefits!</p>
+					<p class="fragment">Let's mention a few...</p>
+				</section>
+				<section data-background="images/throw-money.gif">
+					<h2>1. We save lots of money</h2>
+					<img src="images/docker-vs-vms.png" height="300px"/>
+					<p>Far better (30%+) hardware handling</p>
+					<p>Standardized operations and tools</p>
+				</section>
+				<section>
+					<h2>2. Closer to cloud-ready</h2>
+					<img src="images/old-man-yells-cloud.png" height="280px"/>
+					<p>Each cloud provider do the same things in different ways</p>
+					<p>We <em>need</em> to abstract from vendors specifications</p>
+				</section>
+				<section>
+					<h2>3. "It works on my machine!" is a thing now</h2>
+					<p>Who needs <a href="https://github.com/contactlab/saray">Saray</a> when you can use the real thing?</p>
+					<p></p>
+				</section>
+				<section>
+					<h2>4. Faster... everything!</h2>
+					<p>Dev: Testing new version and components "swapping" containers in my app</p>
+					<p>Staging: automating tests with "pseudo-real" data</p>
+					<p>Prod: create new containers with new version, route traffic, observe behavior</p>
+				</section>
+				<section>
+					<h2>5. Scaling is caring</h2>
+					<p>A "reactive" way to manage dynamic workloads</p>
+					<p>High Availability for traditional applications</p>
+				</section>
+				<section>
+					<h2>It's not all rainbows and unicorns</h2>
+					<img src="images/dead-unicorn.jpg" />
+					<p>This is another layer of complexity</p>
+					<p>Things <em>will</em> break in creative ways</p>				
+					<p>Requires app to be smart(er)</p>
+				</section>
+			</section>
+			<section data-background="images/praying-otter.jpg">
+				<h1>Demo time!</h1>
+			</section>
+			<section>
+				<section>
+					<h2>A little digression</h2>
+					<h4>just to get back on track</h4>
+				</section>
+				<section>
+					<p style="text-align: center">To devs, <em>infrastructure</em> is a black box</p>
+					<img src="images/dev-ops-problem.jpg" />
+				</section>
+				<section>
+					<p style="text-align: center">To ops, <em>applications</em> are a black box</p>
+					<img src="images/devotion_to_duty.png"/>
+				</section>
+				<section>
+					<h2>This needs to end!</h2>
+					<p>The delivery of applications is a shared responsibility</p>
+					<p>Stop worrying on the "how" and increasingly put weight on the "what"</p>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h2>Where do we go from here?</h2>
+					<p>We're just at the beginning of this (r)evolution</p>
+					
+				</section>
+				<section>
+					<h3>New users</h3>
+					<ul>
+						<li>Want more technical courses? I'm all for it</li>
+						<li>Help me find you a use case</li>
+						<li>Talk to other people for hints on how to solve common issues</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Advanced users</h3>
+					<ul>
+						<li>Request access to our <a href="http://coreos-controller-01.contactlab.dev">kubernetes</a> cluster!</li>
+						<li>Refactor your workflow to adopt containers</li>
+						<li>Let's build <em>together</em> standard practises</li>
+					</ul>
+				</section>
+			</section>
+			<section id="closing">
+				<section data-background="images/thats-all-folks.jpg">
+				</section>
+				<section data-background="images/thats-all-folks.jpg" data-state="dimbg">
+					<img src="images/drake-feedback-pr.jpg" height="580px" />
+				</section>
+			</section>
+		</div>
+	</div>
+
+	<script src="lib/js/head.min.js"></script>
+	<script src="js/reveal.js"></script>
+
+	<script>
+		// More info about config & dependencies:
+		// - https://github.com/hakimel/reveal.js#configuration
+		// - https://github.com/hakimel/reveal.js#dependencies
+		Reveal.initialize({
+			width: 970,
+			dependencies: [
+				{ src: 'plugin/markdown/marked.js' },
+				{ src: 'plugin/markdown/markdown.js' },
+				{ src: 'plugin/notes/notes.js', async: true },
+				{ src: 'plugin/zoom-js/zoom.js', async: true },
+				{ src: 'plugin/highlight/highlight.js', async: true, callback: function () { hljs.initHighlightingOnLoad(); } }
+			]
+		});
+	</script>
+</body>
+
+</html>

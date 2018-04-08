@@ -1,0 +1,111 @@
+# Demo
+
+## Intro
+Vediamo un esempio di come poter servire un'applicazione in maniera rapida. Dove? Su [play-with-docker](https://play-with-docker.com/). Qui abbiamo un set di max 5 macchine virtuali create solo per noi e che scadranno fra quattro ore: pttimo per "giocare con docker" e fare esperimenti.
+
+Prendiamo ad esempio Wordpress. WP ha bisogno di un database (tipicamente mysql) e di un web server con PHP. Normalmente dovremmo installare il database, creare un database, un utente e dargli dei permessi; con docker è sufficiente lanciare un container (creato da Oracle) e dirgli queste informazioni:
+
+## Database
+
+Creiamo un volume che ospiterà i dati persistenti del database:
+
+```sh
+docker volume create wordpressdb-persistence
+```
+
+E lanciamo un container che creerà un db con un utente associato
+
+```sh
+docker run \
+--name wordpressdb \
+-e MYSQL_ROOT_PASSWORD="c4n3root" \
+-e MYSQL_DATABASE="c4n3press" -e MYSQL_USER="c4n3user" -e MYSQL_PASSWORD="c4n3pass" \
+-v wordpressdb-persistence:/var/lib/mysql \
+-d mysql
+```
+
+Il container è stato avviato
+
+```sh
+docker ps -a 
+```
+
+E ci espone questi log
+
+```sh
+docker logs wordpressdb --follow
+```
+
+Vediamo se ha creato il DB? (sarà vuoto, ovviamente)
+
+```sh
+docker exec -ti wordpressdb /bin/bash 
+    /usr/bin/mysql -u root -pc4n3root -e "show databases;"
+    /usr/bin/mysql -u root -pc4n3root -e "use c4n3press; show tables;"
+```
+
+## Sito
+
+La Wordpress Foundation ci mette gentilmente a disposizione un container con l'ultima applicazione, un web server e PHP già configurati.
+(a meno di ospitare un sito particolarmente pesante/trafficato, perchè dovremmo rifare questi step ogni volta?)
+
+Anche qui, creiamo un volume che ospita i file del sito:
+
+```sh
+docker volume create wordpresswebsite-persistence
+```
+
+Lanciamo il container
+
+```sh
+docker run \
+--name wordpresswebsite \
+--link wordpressdb:mysql \
+-e WORDPRESS_DB_USER="c4n3user" \
+-e WORDPRESS_DB_PASSWORD="c4n3pass" \
+-e WORDPRESS_DB_NAME="c4n3press" \
+-p 80:80 \
+-v wordpresswebsite-persistence:/var/www/html \
+-d wordpress
+```
+
+Dopo l'installazione, le tabelle ci saranno
+
+```sh
+docker exec -ti wordpressdb /bin/bash 
+    /usr/bin/mysql -u root -pc4n3root -e "use c4n3press; show tables;"
+```
+
+## Disaster and recovery
+
+Perchè ho creato la persistenza? Perchè normalmente i container sono come variabili: senza memoria. Devo dirgli io dove e come tenere dei dati tra un'istanza e l'altra.
+Supponiamo di aver fatto un casino e cancelliamo il container che ospita il DB:
+
+```sh
+docker rm -f wordpressdb
+docker ps -a
+```
+
+Il sito è proprio offline! Verifichiamo se abbiamo ancora il volume persistente...
+
+```sh
+docker volume ls 
+```
+
+Contiene i dati di un DB?
+
+```sh
+docker inspect wordpressdb-persistence
+```
+
+Allora ci basterà lanciare un container dicendogli dove trovare i dati persistenti! (e con lo stesso nome di quello distrutto, btw)
+
+```sh
+docker run \
+--name wordpressdb \
+-v wordpressdb-persistence:/var/lib/mysql \
+-d mysql
+```
+
+All right! Sito online!
+Con un piccolo overhead avrei potuto far girare il nuovo container in un altro nodo, o farlo ripartire in automatico in caso di stop.
